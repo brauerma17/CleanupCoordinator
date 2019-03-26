@@ -1,7 +1,7 @@
 from twilio.rest import Client
 
-account_sid = 'AC4d93c37484d86c0d618cba406c635a4c'
-auth_token = 'a56f572258a1edf696065ed513dfb8f0'
+account_sid = ''
+auth_token = ''
 client = Client(account_sid, auth_token)
 
 message_body = "Join Earth's mightiest heroes. Like Kevin Bacon."

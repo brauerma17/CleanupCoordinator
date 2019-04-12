@@ -40,6 +40,7 @@ class Member:
         as a key in a lambda expression to perform sorting on lists of Members
         :rtype: int
         :return: integer equivalent of the status of the brother.
+        TODO: fill out AM
         """
         if self.status == 'SS':
             return 0

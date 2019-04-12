@@ -1,0 +1,3 @@
+[submodule "resp-text-receiver"]
+	path = resp-text-receiver
+	url = https://git.heroku.com/reps-text-receiver.git

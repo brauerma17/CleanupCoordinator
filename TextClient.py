@@ -1,6 +1,7 @@
 from twilio.rest import Client
 import CleanupHourScheduler
 import MemberGenerator
+import TaskLogger
 
 
 class TextAssigner:
@@ -51,6 +52,7 @@ def initialize_text_assigner() -> TextAssigner:
 if __name__ == '__main__':
     tasks = CleanupHourScheduler.schedule_hours()
     task1 = tasks[0]
-    member1 = MemberGenerator.Member('John', 'Miles', '470-263-7816', 'j.austinmiles@outlook.com', 'Brother', True)
+    member1 = MemberGenerator.Member('Haleigh', 'Streak', '678-325-8777', 'j.austinmiles@outlook.com', 'Brother', True)
     text_assigner = initialize_text_assigner()
     text_assigner.send_assignment((member1, task1))
+    TaskLogger.log_task((task1, member1))

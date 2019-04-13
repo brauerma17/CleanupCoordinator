@@ -1,10 +1,12 @@
-import openpyxl
+import gspread
 from time import time
+
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 class CleanupHour:
 
-    def __init__(self, name: str, task_id: int, day: str, due_time: time, worth: int, difficulty: int):
+    def __init__(self, name: str, task_id: int, day: str, due_time: time, worth: int, difficulty: int, link: str):
         """
         A CleanupHour holds the metadata and values for a cleanup task
         :param name: name of the task
@@ -20,12 +22,14 @@ class CleanupHour:
         self.due_time = due_time
         self.worth = worth
         self.difficulty = difficulty
+        self.link = link
 
     def __str__(self):
         return """Name: """ + self.name\
                + """\nDue Date: """ + str(self.day)\
                + """\nDue Time: """ + str(self.due_time)\
-               + """\nWorth: """ + str(self.worth)
+               + """\nWorth: """ + str(self.worth)\
+               + """\nLink: """ + str(self.link)
         # + """\nDifficulty: """ + str(self.difficulty) + '\n'
         # + """\nId: """ + str(self.task_id)\
 
@@ -37,19 +41,24 @@ def schedule_hours() -> list:
     :rtype: list
     :return: list of CleanupHour objects
     """
-    excel_document = openpyxl.load_workbook('Cleanup Sheet.xlsx')
-    cleanup_hours_sheet = excel_document['Weekly Schedule']
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+    client = gspread.authorize(creds)
+    sheet = client.open('cleanup_sheet').get_worksheet(1)
+    col_one = sheet.col_values(1)
+    max_row = len(col_one)
     hours_list = []
-    for i in range(2, cleanup_hours_sheet.max_row + 1):
-        cleanup_row = cleanup_hours_sheet[i]
-        name = cleanup_row[0].value
-        task_id = cleanup_row[1].value
-        day = cleanup_row[2].value
-        due_time = cleanup_row[3].value
-        worth = cleanup_row[4].value
-        difficulty = cleanup_row[5].value
-        hour = CleanupHour(name, task_id, day, due_time, worth, difficulty)
-        # print(hour)
+    for i in range(2, max_row + 1):
+        row = sheet.row_values(i)
+        name = row[0]
+        task_id = row[1]
+        day = row[2]
+        due_time = row[3]
+        worth = row[4]
+        difficulty = row[5]
+        link = row[6]
+        hour = CleanupHour(name, task_id, day, due_time, worth, difficulty, link)
+        print(hour)
         hours_list.append(hour)
     return hours_list
 

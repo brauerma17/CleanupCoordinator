@@ -1,4 +1,6 @@
-import openpyxl
+import gspread
+import time
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 class Member:
@@ -58,22 +60,27 @@ def generate_members() -> list:
     :rtype: list
     :return: list of Member objects
     """
-    excel_document = openpyxl.load_workbook('Cleanup Sheet.xlsx')
-    member_sheet = excel_document['Members']
     hours_dict = generate_hours()
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+    client = gspread.authorize(creds)
+    sheet = client.open('cleanup_sheet').get_worksheet(2)
+    col_one = sheet.col_values(1)
+    max_row = len(col_one)
     members = []
-    for i in range(2, member_sheet.max_row + 1):
-        member_row = member_sheet[i]
-        name_first = member_row[0].value
-        name_last = member_row[1].value
-        phone = member_row[2].value
-        email = member_row[3].value
-        status = member_row[4].value
-        active = member_row[5].value
+    for i in range(2, max_row + 1):
+        time.sleep(1.2)
+        member_row = sheet.row_values(i)
+        name_first = member_row[0]
+        name_last = member_row[1]
+        phone = member_row[2]
+        email = member_row[3]
+        status = member_row[4]
+        active = member_row[5]
         member = Member(name_first, name_last, phone, email, status, active)
         member.hours = hours_dict.get(name_first.strip() + name_last.strip(), -1)
         members.append(member)
-        # print(member)
+        print(member)
     return members
 
 
@@ -84,12 +91,17 @@ def generate_hours() -> dict:
     :rtype: dict
     :return: dict of hours mapping value 'hours' to key 'last name'
     """
-    excel_document = openpyxl.load_workbook('Cleanup Sheet.xlsx')
-    member_sheet = excel_document['Running Total']
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
+    client = gspread.authorize(creds)
+    sheet = client.open('cleanup_sheet').get_worksheet(3)
+    col_one = sheet.col_values(1)
+    max_row = len(col_one)
     hours_dict = {}
-    for i in range(2, member_sheet.max_row + 1):
-        member_row = member_sheet[i]
-        hours_dict[member_row[0].value.strip() + member_row[1].value.strip()] = member_row[2].value
+    for i in range(2, max_row + 1):
+        time.sleep(1.2)
+        member_row = sheet.row_values(i)
+        hours_dict[member_row[0].strip() + member_row[1].strip()] = member_row[2]
     return hours_dict
 
 
